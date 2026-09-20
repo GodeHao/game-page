@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星海谣 · Starlight Bloom</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============ 背景星空画布（全局） ============ -->
+<canvas id="sky-canvas"></canvas>
+
+<!-- ============ 登录 / 注册界面 ============ -->
+<section id="login-screen" class="screen">
+  <div class="auth-wrap">
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+          <defs>
+            <linearGradient id="bgg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a9f0ff"/><stop offset="100%" stop-color="#ffb7e5"/>
+            </linearGradient>
+          </defs>
+          <path fill="url(#bgg)" opacity=".95" d="M32 4c2 9 6 15 12 20-7 1-12 4-15 10-3-6-8-9-15-10 6-5 10-11 12-20 2 8 4 8 6 0z"/>
+          <path fill="url(#bgg)" opacity=".6" d="M46 34c1.4 6 4 10 8 13-5 .6-8.6 2.6-10.6 6.6-2-4-5.6-6-10.6-6.6 4-3 6.6-7 8-13 1.4 5.4 3.4 5.4 5.2 0z"/>
+          <circle cx="32" cy="26" r="2.6" fill="#fff"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">星海谣</h1>
+      <p class="brand-sub">Starlight Bloom · 拾星者的夜航</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="tab-bar">
+        <button class="tab active" data-tab="login">登 录</button>
+        <button class="tab" data-tab="register">注 册</button>
+        <span class="tab-ink" id="tab-ink"></span>
+      </div>
+
+      <!-- 登录表单 -->
+      <form id="form-login" class="auth-form" autocomplete="off" novalidate>
+        <div class="field">
+          <span class="field-icon">✉</span>
+          <input type="text" id="login-email" placeholder="QQ 邮箱（如 123456@qq.com）" maxlength="32">
+        </div>
+        <div class="field">
+          <span class="field-icon">✦</span>
+          <input type="password" id="login-pwd" placeholder="登录密码" maxlength="32">
+          <button type="button" class="eye" data-eye="login-pwd">◉</button>
+        </div>
+        <div class="row-between">
+          <label class="check"><input type="checkbox" id="remember"><i></i>记住邮箱</label>
+          <button type="button" class="link" id="to-register">还没有账号？去注册 →</button>
+        </div>
+        <p class="tip" id="login-tip"></p>
+        <button type="submit" class="btn-main">启 程 · 登录</button>
+      </form>
+
+      <!-- 注册表单 -->
+      <form id="form-register" class="auth-form hidden" autocomplete="off" novalidate>
+        <div class="field">
+          <span class="field-icon">☾</span>
+          <input type="text" id="reg-name" placeholder="昵称（1-8 个字）" maxlength="8">
+        </div>
+        <div class="field">
+          <span class="field-icon">✉</span>
+          <input type="text" id="reg-email" placeholder="QQ 邮箱（必须使用 @qq.com）" maxlength="32">
+        </div>
+        <div class="field">
+          <span class="field-icon">✦</span>
+          <input type="password" id="reg-pwd" placeholder="密码 6-20 位，需含字母和数字" maxlength="20">
+          <button type="button" class="eye" data-eye="reg-pwd">◉</button>
+        </div>
+        <div class="field">
+          <span class="field-icon">✦</span>
+          <input type="password" id="reg-pwd2" placeholder="确认密码" maxlength="20">
+          <button type="button" class="eye" data-eye="reg-pwd2">◉</button>
+        </div>
+        <label class="check agree"><input type="checkbox" id="agree"><i></i>我已阅读并同意《星海谣漫游守则》</label>
+        <p class="tip" id="reg-tip"></p>
+        <button type="submit" class="btn-main">登记 · 领取星舟</button>
+      </form>
+    </div>
+
+    <p class="foot">账号数据保存在本机浏览器中 · 不会上传至任何服务器</p>
+  </div>
+</section>
+
+<!-- ============ 游戏界面 ============ -->
+<section id="game-screen" class="screen hidden">
+  <header class="hud">
+    <div class="hud-left">
+      <div class="pill" title="当前星舟驾驶者">
+        <span class="avatar" id="hud-avatar">星</span>
+        <span class="nick" id="hud-nick">拾星者</span>
+      </div>
+      <div class="pill life-pill">
+        <span class="pill-key">星命</span>
+        <span class="hearts" id="hud-hearts"></span>
+      </div>
+      <div class="pill">
+        <span class="pill-key">第 <b id="hud-level">1</b> 重星域</span>
+      </div>
+    </div>
+
+    <div class="hud-center">
+      <div class="score-num" id="hud-score">0</div>
+      <div class="goal-bar"><i id="hud-goal"></i></div>
+      <div class="goal-text">距下一星域 <span id="hud-goaltext">0</span></div>
+    </div>
+
+    <div class="hud-right">
+      <div class="pill combo-pill" id="hud-combo-box">
+        <span class="pill-key">星链</span><b id="hud-combo">×1.0</b>
+      </div>
+      <div class="pill">最高 <b id="hud-best">0</b></div>
+      <button class="icon-btn" id="btn-sound" title="音效开关">♪</button>
+      <button class="icon-btn" id="btn-full" title="全屏 (F)">⛶</button>
+      <button class="icon-btn" id="btn-pause" title="暂停 (Esc)">❚❚</button>
+      <button class="icon-btn" id="btn-quit" title="退出登录">⏏</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <canvas id="game-canvas" width="960" height="600"></canvas>
+
+    <div class="buffs" id="buffs"></div>
+
+    <div class="level-banner hidden" id="level-banner">
+      <span class="lb-sub">穿过浮尘，抵达</span>
+      <span class="lb-main" id="lb-main">第 2 重星域</span>
+    </div>
+
+    <!-- 开始遮罩 -->
+    <div class="overlay" id="overlay-start">
+      <div class="ov-card">
+        <h2>准备好了吗，<span id="start-nick">拾星者</span></h2>
+        <p class="ov-desc">拖动<b>鼠标</b>或使用 <b>← →</b> 操控星舟，接住坠落的<b>星屑</b>，避开<b>暗云与陨星</b>。</p>
+        <ul class="legend">
+          <li><i class="dot gold"></i>星屑 · 分数 +10</li>
+          <li><i class="dot cyan"></i>星辰核 · 分数 +30</li>
+          <li><i class="dot pink"></i>光羽 · 护盾</li>
+          <li><i class="dot violet"></i>时砂 · 缓速</li>
+          <li><i class="dot pale"></i>磁石 · 大范围星引</li>
+          <li><i class="dot dark"></i>暗云 / 陨星 · 伤害</li>
+        </ul>
+        <label class="check agree" style="justify-content:center;margin:2px 0 8px;">
+          <input type="checkbox" id="auto-full"><i></i>开始后自动进入全屏
+        </label>
+        <button class="btn-main" id="btn-start">开始夜航</button>
+        <p class="ov-foot">Esc 暂停 · F 全屏 · 空格也可用</p>
+      </div>
+    </div>
+
+    <!-- 暂停遮罩 -->
+    <div class="overlay hidden" id="overlay-pause">
+      <div class="ov-card small">
+        <h2>星河暂驻</h2>
+        <p class="ov-desc">按 Esc 或点击下方继续</p>
+        <button class="btn-main" id="btn-resume">继 续</button>
+        <button class="btn-ghost" id="btn-restart">重新开始</button>
+      </div>
+    </div>
+
+    <!-- 结算遮罩 -->
+    <div class="overlay hidden" id="overlay-over">
+      <div class="ov-card">
+        <h2 id="over-title">这次夜航的尽头</h2>
+        <div class="result">
+          <div><span id="res-score">0</span><em>本局分数</em></div>
+          <div><span id="res-level">1</span><em>抵达星域</em></div>
+          <div><span id="res-star">0</span><em>拾得星屑</em></div>
+        </div>
+        <p class="ov-desc" id="res-best">历史最高：0</p>
+        <p class="ov-desc" id="res-new" style="color:#ffe08a;"></p>
+        <button class="btn-main" id="btn-again">再航一次</button>
+        <button class="btn-ghost" id="btn-home">返回登录</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="tips">提示：保持连续拾取可累积「星链」倍率，受伤会中断连锁。</footer>
+</section>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="assets/js/store.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/game.js"></script>
+</body>
+</html>
